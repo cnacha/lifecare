@@ -1,0 +1,53 @@
+<ion-side-menus enable-menu-with-back-views="true">
+    <ion-side-menu-content>
+        <ion-nav-bar class="bar-shade1" ng-class="{expanded: isExpanded, 'has-header-fab-left': hasHeaderFabLeft, 'has-header-fab-right': hasHeaderFabRight}" align-title="left">
+        <!--  <ion-nav-back-button class="no-text">
+            </ion-nav-back-button>
+		-->
+		
+            <ion-nav-buttons side="left">
+                <button class="button button-icon button-clear ion-android-menu" menu-toggle="left">
+                </button>
+            </ion-nav-buttons>
+	
+        </ion-nav-bar>
+        <ion-nav-view name="fabContent"></ion-nav-view>
+        <ion-nav-view name="menuContent" class="expanded" ></ion-nav-view>
+    </ion-side-menu-content>
+
+    <ion-side-menu side="left">
+
+        <ion-content class="side-menu no-header">
+            <ion-list class="no-margin">
+				<!--<ion-item>
+					<div class=" menu-icon "></div>
+				</ion-item> -->
+				
+				<ion-item menu-close ui-sref="app.addPatient"  class="item-icon-right pretty-thai-text yellow1-background" >
+                   <i class="icon material-icons light-text shadow-text" style="font-weight: 100;">&#xE851;</i>เพิ่มผู้ป่วยที่ดูแล
+                </ion-item>
+                <ion-item menu-close ui-sref="app.logout" class="item-icon-right pretty-thai-text yellow2-background">
+                    <i class="icon material-icons light-text shadow-text" style="font-weight: 100">&#xE879;</i> ออกจากระบบ
+                </ion-item>
+				<ion-item class="item-icon-right no-margin" style="background: rgba(0, 0, 0, 0.3);">
+					<h3 class="content padding double-padding-x pretty-thai-text light-text shadow-text">รายชื่อ</h3>
+					 <i class="icon ion-chevron-down small-text lighter-text" style="font-size: 15px"></i> 
+				</ion-item>
+				<ion-item ng-if="patients == null || pat ients.length ==0" class="item-icon-left dark-text pretty-thai-text">
+                    <i class="icon material-icons dark-text" style="font-weight: 100">&#xE002;</i> ยังไม่มีรายชื่อคนไข้
+                </ion-item>
+				<ion-item menu-close ng-repeat="p in patients" href="#/app/home/{{$index}}" style="background: rgba(0, 0, 0, 0.2);" class="item no-padding item-avatar item-avatar-left">
+					 <img  ng-if="p.photoFilePath !=null" src='{{URL_PREFIX + p.photoFileURI}}'>
+					 <img  ng-if="p.photoFilePath ==null" src="img/person.png">
+					 <h4 class="pretty-thai-text light-text">{{p.firstname}} {{p.lastname}}</h4>
+					
+					<small class="pretty-thai-text lighter-text" >{{translateStatus(p.currentStatus)}}</small>
+                </ion-item>
+				
+				
+           
+			</ion-list>
+        </ion-content>
+    </ion-side-menu>
+
+</ion-side-menus>

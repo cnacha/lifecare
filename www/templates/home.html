@@ -1,0 +1,43 @@
+<ion-view view-title="ติดตามผู้ป่วย">
+    <ion-content  ng-class="{expanded:$scope.isExpanded}" style="background: url(img/bg-106.jpg) center; background-size: cover; align:center; vertical-align: middle;">
+		
+            <div ng-if="patient!=null" class="shadow-top">
+                <div class="row padding">
+					<div class="col">
+					<a ng-click="takeImage()">
+					<span class="avatar" ng-if="patient.photoFilePath ==null" style="background-image: url('img/person.png');"></span>	
+					<span class="avatar" ng-if="patient.photoFilePath !=null" style="background-image: url('{{patient.photoFileURL}}');"></span>
+					</a>
+					</div>
+					<div class="col col-80">
+						<div class="row">
+							<div class="col col-80 col-center">
+								<h3 class="white-text shadow-text pretty-thai-text"> {{patient.firstname}}  {{patient.lastname}} </h3>
+								<small class="pretty-thai-text light-text">{{patient.distanceFromCenter}} เมตร จากบ้าน</small><BR/>
+								<span class="pretty-thai-text">
+								{{patient.disease}}
+								</span>
+								
+							</div>
+							<div class="col col-center col-20">
+								<button ng-click="showMenu()" class="button button-fab button-fab-top-right button-energized ink"><i class="icon ion-chevron-down"></i></button>
+							</div>
+						</div>
+						<div class="row">
+							<div  class="col col-center pretty-thai-text light-text item-icon-left"><i class="material-icons">&#xE867;</i></div>
+							 <div class="col col-90 col-center pretty-thai-text light-text item-icon-left">{{translateStatus(patient.currentStatus)}}</div>
+						</div>
+					</div>
+                </div>
+				<!--
+				<div class="row" style="background: rgba(0, 0, 0, 0.2);">
+					<canvas id="line" class="chart chart-line padding" chart-data="data" chart-labels="labels" chart-legend="true" chart-series="series" chart-options="options"></canvas>
+					
+					<!--	<div class="col ligh-text pretty-thai-text"><ng-gauge size="100" type="full" thick="3" min="0" max="200" value="100" cap="round" label=""  foreground-color="#FFF" background-color="rgba(255,255,255, 0.4)" append="M" ></ng-gauge></div> -->
+				<!--
+				</div>
+				-->
+            </div>
+			 <div ng-if="patient!=null" id="map" data-tap-disabled="true"></div>
+    </ion-content>
+</ion-view>

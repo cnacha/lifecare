@@ -1,0 +1,36 @@
+<ion-view view-title="Life Care">
+    <ion-content ng-class="{expanded:isExpanded}">
+	<div  class="im-wrapper">
+		<form ng-hide="hideSearch == 'true'" name="searchForm" class="list" novalidate >
+			<h3 class="dark-text pretty-thai-text">เพิ่มคนไข้ในความดูแล<h3>
+			<div class="list">
+				<label class="item item-input item-floating-label">
+						<span class="input-label pretty-thai-text">รหัสคนไข้ (Security Code)</span>
+						<input type="number" class="pretty-thai-text" name="code" placeholder="รหัสคนไข้ (Security Code)" ng-model="code" required>
+				 </label>
+				</div>
+
+		<div class="row">
+			<button class="col button button-full pretty-thai-text pretty-thai-text button-stable ink" ui-sref="app.home" >
+						กลับ
+             </button>
+			<button class="col button button-full pretty-thai-text pretty-thai-text button-energized ink" ng-click="searchPatient(code)" ng-disabled="searchForm.$invalid" >
+						ค้นหา
+             </button>
+		</div>
+		</form>
+		<div ng-show="selectPatient == 'true'">
+		    <h4 class="pretty-thai-text">ผลลัพธ์การค้นหา</h4>
+          <span class="dark-text pretty-thai-text" ng-show="patientList.length == 0">ไม่พบคนไข้รหัส {{code}} </span>
+          <div class="list" ng-repeat="item in patientList">
+              <button ng-click="recordPermit(item)" class="button item pretty-thai-text button-block icon-right button-stable ion-android-add-circle">{{item.firstname}} {{item.lastname}}</button>
+          <!--    <div class="col col-10 col-center" ><button id="menu-food" ng-click="newRecord(item)" class="button button-fab button-shade4 icon ion-plus"></button></div>
+              <div class="col col-center">{{item.name}}</div>
+          -->
+
+          </div>
+		</div>
+  <div>
+ 
+    </ion-content>
+</ion-view>
