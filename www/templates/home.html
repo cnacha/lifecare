@@ -1,8 +1,12 @@
 <ion-view view-title="ติดตามผู้ป่วย">
+	<ion-nav-buttons side="right">
+		<button ng-click="showMenu()" class="button button-fab button-fab-top-right button-energized ink"><i class="icon ion-android-more-vertical"></i></button>
+
+	</ion-nav-buttons>
     <ion-content  ng-class="{expanded:$scope.isExpanded}" style="background: url(img/bg-106.jpg) center; background-size: cover; align:center; vertical-align: middle;">
 		
             <div ng-if="patient!=null" class="shadow-top">
-                <div class="row padding">
+                <div class="row">
 					<div class="col">
 					<a ng-click="takeImage()">
 					<span class="avatar" ng-if="patient.photoFilePath ==null" style="background-image: url('img/person.png');"></span>	
@@ -18,9 +22,6 @@
 								{{patient.disease}}
 								</span>
 								
-							</div>
-							<div class="col col-center col-20">
-								<button ng-click="showMenu()" class="button button-fab button-fab-top-right button-energized ink"><i class="icon ion-chevron-down"></i></button>
 							</div>
 						</div>
 						<div class="row">
