@@ -162,6 +162,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ionic-material','ion
             }
     })
 	
+	.state('app.profile', {
+        url: '/profile',
+        views: {
+            'menuContent': {
+                templateUrl: 'templates/profile.html',
+                controller: 'ProfileCtrl'
+            },
+            'fabContent': {
+                
+            }
+        }
+    })
+	
 	.state('app.sethome', {
 		url: '/sethome',
 		views: {

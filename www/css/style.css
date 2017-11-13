@@ -662,6 +662,7 @@ select::-ms-expand {
 }
  .img-circle {
     border-radius: 50%;
+
 }
 
 .item-avatar, .item-avatar .item-content, .item-avatar-left, .item-avatar-left .item-content {

@@ -151,7 +151,7 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 		if(uObj != 'null'){
 				  console.log('this user alraldy login so go to homepage : authorizationKey = '+JSON.parse(uObj).authorizationKey);
 				  $http.defaults.headers.common['___authorizationkey'] = JSON.parse(window.localStorage.getItem('user')).authorizationKey;
-				  $state.go(defaulturl);
+				//  $state.go(defaulturl);
 				  return;
 		 }
 	 }, 100);
@@ -307,6 +307,83 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 		
 })
 
+.controller('ProfileCtrl', function ($scope, $rootScope, $window, $ionicHistory, $ionicNavBarDelegate, $ionicSideMenuDelegate, $stateParams, $ionicPopup, $http, $filter, $timeout, ionicMaterialMotion, $ionicLoading, ionicMaterialInk, $state) {
+		$rootScope.showMenu = true;
+		// Set Header
+		$scope.$parent.showHeader();
+		$scope.$parent.clearFabs();
+		$scope.isExpanded = true;
+		$scope.$parent.setExpanded(true);
+		$scope.$parent.setHeaderFab(false);
+		$ionicNavBarDelegate.showBackButton(true);
+		$ionicSideMenuDelegate.canDragContent(true);
+		
+		var userObj = JSON.parse(window.localStorage.getItem('user'));
+		$scope.formData = {};
+		$scope.formData.firstname = userObj.firstname;
+		$scope.formData.lastname = userObj.lastname;
+		$scope.formData.phone = userObj.phone;
+		$scope.formData.email = userObj.email;
+		$scope.saveData = function(){
+			userObj.firstname = $scope.formData.firstname;
+			userObj.lastname = $scope.formData.lastname;
+			userObj.phone = $scope.formData.phone;
+			userObj.email = $scope.formData.email;
+			$ionicLoading.show();
+			var headers = {'Content-Type': 'application/json'};
+			$http.post(URL_PREFIX + "/api/user/save.do", JSON.stringify(userObj), headers).
+				success(function (data, status, headers, config) {
+					$ionicLoading.hide();
+					window.localStorage.setItem('user',JSON.stringify(userObj));
+					var alertPopup = $ionicPopup.alert({
+							title: 'Complete',
+							template: 'การแก้ไขข้อมูลสร็จสมบูรณ์ !'
+						});
+					alertPopup.then(function (res) {
+						$state.go("app.home");
+					});
+					 
+				}).
+				error(function (data, status, headers, config) {
+					console.log("error" + JSON.stringify(data));
+					$ionicLoading.hide();
+				});
+		}
+		
+		$scope.changePW = function(){
+			if( $scope.formData.password != $scope.formData.repassword){
+				var alertPopup = $ionicPopup.alert({
+							title: 'Error',
+							template: 'รหัสผ่านที่ใส่ไม่ตรงกัน '
+						});
+				return;
+			}
+			
+			$ionicLoading.show();
+			userObj.password = $scope.formData.password;
+			var headers = {'Content-Type': 'application/json'};
+			$http.post(URL_PREFIX + "/api/user/changePassword.do", JSON.stringify(userObj), headers).
+				success(function (data, status, headers, config) {
+					$ionicLoading.hide();
+					var alertPopup = $ionicPopup.alert({
+							title: 'Complete',
+							template: 'การแก้ไขรหัสผ่านเสร็จสมบูรณ์ !'
+						});
+					alertPopup.then(function (res) {
+						$state.go("app.home");
+					});
+					window.localStorage.setItem('user',JSON.stringify(userObj));
+				}).
+				error(function (data, status, headers, config) {
+					console.log("error" + JSON.stringify(data));
+					$ionicLoading.hide();
+				});
+		}
+		/**
+		
+		**/
+	})
+
 .controller('WelcomeCtrl', function($scope,$rootScope, $window,$ionicActionSheet, $ionicHistory,$ionicNavBarDelegate,$ionicSideMenuDelegate, $stateParams,$ionicPopup, $http,$filter, $timeout, ionicMaterialMotion,$ionicLoading, ionicMaterialInk) {
 	console.log("WelcomeCtrl is called");
 	// Set Header
@@ -354,35 +431,8 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 					$rootScope.patient = $scope.patient;
 					$scope.patient.photoFileURL = URL_PREFIX + $scope.patient.photoFileURI;
 					console.log($scope.patient.photoFileURL);
-					$ionicLoading.show();
-					$http.get(URL_PREFIX+"/api/patient/locationlog/list.do?id="+$scope.patient.id)
-					.then(function(res){ 
-						$ionicLoading.hide();
-						var actualDistances = [];
-						var warnDistances = [];
-						$scope.prevPositions = [];
-						$scope.labels = []; 
-						if(res.data!=0){
-							for(var i=0; i<res.data.length; i++){	
-								warnDistances.push($scope.patient.warnDistance);
-								actualDistances.push(res.data[i].distanceFromCenter);
-								if(i!=0){
-									$scope.prevPositions.push({lat: res.data[i].locLat, lng: res.data[i].locLong})
-								}
-								var logdate = new Date(res.data[i].logDate);
-								$scope.labels.push($filter('date')(logdate, "HH:mm"));
-							}
-							$scope.patient.currentLat = res.data[0].locLat;
-							$scope.patient.currentLong = res.data[0].locLong;
-							$scope.patient.distanceFromCenter = res.data[0].distanceFromCenter;
-						}
-						$scope.data = [actualDistances,warnDistances]; 
-						
-						setTimeout(function() {google.maps.event.addDomListener(window, 'load', loadMap());},500);
-					}, function(err) {
-						console.error('ERR', JSON.stringify(err));
-						$ionicLoading.hide();
-					}); 
+					$scope.loadLocation();
+					
 				}
 			}
 			, function(err) {
@@ -390,6 +440,39 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 				$ionicLoading.hide();
 			}); 
 	}
+	
+	$scope.loadLocation = function(){
+		$ionicLoading.show();
+		$http.get(URL_PREFIX+"/api/patient/locationlog/list.do?id="+$scope.patient.id)
+		.then(function(res){ 
+			$ionicLoading.hide();
+			var actualDistances = [];
+			var warnDistances = [];
+			$scope.prevPositions = [];
+			$scope.labels = []; 
+			if(res.data!=0){
+				for(var i=0; i<res.data.length; i++){	
+					warnDistances.push($scope.patient.warnDistance);
+					actualDistances.push(res.data[i].distanceFromCenter);
+					if(i!=0){
+						$scope.prevPositions.push({lat: res.data[i].locLat, lng: res.data[i].locLong})
+					}
+					var logdate = new Date(res.data[i].logDate);
+					$scope.labels.push($filter('date')(logdate, "HH:mm"));
+				}
+				$scope.patient.currentLat = res.data[0].locLat;
+				$scope.patient.currentLong = res.data[0].locLong;
+				$scope.patient.distanceFromCenter = res.data[0].distanceFromCenter;
+			}
+			$scope.data = [actualDistances,warnDistances]; 
+			
+			setTimeout(function() {google.maps.event.addDomListener(window, 'load', loadMap());},500);
+		}, function(err) {
+			console.error('ERR', JSON.stringify(err));
+			$ionicLoading.hide();
+		}); 
+	}
+	
 	// call load patient
 	$scope.loadPatients();
 	
@@ -581,6 +664,7 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 	$scope.showMenu = function() {
 	   var hideSheet = $ionicActionSheet.show({
 		 buttons: [
+		    { text: '<i class="icon ion-refresh"></i>เรียกข้อมูลใหม่' },
 		   { text: '<i class="icon ion-android-call"></i>โทรหา' },
 		   { text: '<i class="icon ion-android-home"></i>ตั้งตำแหน่งบ้าน' },
 		   { text: '<i class="icon ion-android-locate"></i>กำหนดรัศมีเฝ้าระวัง' },
@@ -591,13 +675,15 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 			  // add cancel code..
 			},
 		 buttonClicked: function(index) {
-			if(index == 0)
+		  if(index == 0)
+				$scope.loadLocation();
+			if(index == 1)
 				$scope.phonecall($scope.patient.watchNumber);
-		   if(index == 1)
+		   if(index == 2)
 				$state.go("app.sethome");
-			if(index == 2)
+			if(index == 3)
 				$scope.setWarnDistance();
-		   if(index == 3)
+		   if(index == 4)
 				$scope.deletePermit($scope.patient.id, userObj.referenceObject.id);
 			
 		   return true;
