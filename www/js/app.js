@@ -162,6 +162,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ionic-material','ion
             }
     })
 	
+	.state('app.resetpassword', {
+        url: '/resetpassword',
+        views: {
+            'menuContent': {
+                templateUrl: 'templates/resetpassword.html',
+                controller: 'ResetPasswordCtrl'
+            },
+            'fabContent': {}
+            }
+    })
+	
 	.state('app.profile', {
         url: '/profile',
         views: {
