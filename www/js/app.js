@@ -18,7 +18,10 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ionic-material','ion
 		
 		navigator.geolocation.getCurrentPosition(function(pos) {
 			console.log("current position "+pos);
-		});
+        });
+        
+        ionic.Platform.fullScreen();
+          
 		$cordovaNativeAudio
 			.preloadSimple('alarmClock', 'audio/alarm.mp3')
 			.then(function (msg) {
