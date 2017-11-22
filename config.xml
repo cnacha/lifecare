@@ -66,6 +66,7 @@
         <splash density="port-xxxhdpi" src="resources/android/splash/drawable-port-xxxhdpi-screen.png" />
     </platform>
     <platform name="ios">
+        <resource-file src="GoogleService-Info.plist" />
         <icon height="57" platform="ios" src="resources/ios/icon/icon.png" width="57" />
         <icon height="114" platform="ios" src="resources/ios/icon/icon@2x.png" width="114" />
         <icon height="40" platform="ios" src="resources/ios/icon/icon-40.png" width="40" />
