@@ -28,6 +28,46 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ionic-material','ion
 			//  alert(error);
 		});
 		
+		var push = PushNotification.init({
+			android: {
+				"senderID": "1091753368379",
+				"iconColor": "#6246a58a",
+				"forceShow" : false
+			},
+			ios: {
+				"senderID": "1091753368379",
+				"alert": true,
+				"badge": true,
+				"sound": true
+			},
+			browser: {
+				pushServiceURL: 'http://push.api.phonegap.com/v1/push'
+			}
+		});
+		push.on('registration', function(data) {
+		  console.log("registrationId "+data.registrationId);
+		  $rootScope.tokenId = data.registrationId;
+		});
+		
+		push.on('notification', function ( data) {
+			if($rootScope.isNotificationCalled == undefined ||  !$rootScope.isNotificationCalled){
+				$rootScope.isNotificationCalled = true;
+				var alertPopup = $ionicPopup.alert({
+					title: "ข้อความเตือน",
+					template: data.message,
+					 buttons: [
+					  { text: 'OK',  onTap: function(e) {
+							  console.log(e);
+							  $rootScope.isNotificationCalled = false;
+							  return true; 
+							} 
+					   }
+					 ]
+				});
+			}
+			
+		});
+		
 		//*** Background Mode ***//
 		cordova.plugins.backgroundMode.on('enable', function(){
 			//your code here, will execute when background tasks is enabled
@@ -54,25 +94,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ionic-material','ion
 
 .config(function($stateProvider, $urlRouterProvider, $ionicConfigProvider,$ionicCloudProvider) {
 	
-	$ionicCloudProvider.init({
-        "core": {
-            "app_id": "6246a58a"
-        },
-        "push": {
-            "sender_id": "1091753368379",
-            "pluginConfig": {
-                "ios": {
-                "badge": true,
-                "sound": true
-                },
-                "android": {
-                "iconColor": "#343434"
-                }
-            }
-        }
-    });
 
-	
     // Turn off caching for demo simplicity's sake
     $ionicConfigProvider.views.maxCache(0);
 

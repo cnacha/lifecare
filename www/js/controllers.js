@@ -98,7 +98,7 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
         }
     };
 	
-	  
+	/**  
 	 $rootScope.$on('cloud:push:notification', function(event, data) {
 		var msg = data.message;
 		//$rootScope.messages = window.localStorage.getItem("messages");
@@ -124,7 +124,7 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 		//$scope.messages = msg;
 	});
 	
-	
+	**/
 	
 	$scope.translateStatus = function(status){
 		console.log("translateStatus called");
@@ -175,21 +175,12 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 				if(data != ''){
 					window.localStorage.setItem('user',JSON.stringify(data));
 					
-					// Get Device Token Key 
-					$ionicPush.register().then(function(t) {
-							console.log('Saving token');
-							return $ionicPush.saveToken(t);
-					}).then(function(t) {
-						// Update the latest token key of the user			
-						$http.get(URL_PREFIX+"/api/security/pushtoken/save.do?tokenKey="+t.token+"&userId="+data.id)
-							.then(function(res) {
-								console.log('Update Device Token for '+data.keyString+' success');
-							}, function(err) {
-								console.error('ERR', JSON.stringify(err));
-							}
-						); 
-						console.log('Token saved:', t.token);
-					});
+					$http.get(URL_PREFIX + "/api/security/pushtoken/save.do?tokenKey=" +  $rootScope.tokenId + "&userId=" + data.id)
+						.then(function (res) {
+							console.log('Update Device Token for ' + data.id + ' success');
+						}, function (err) {
+							console.error('ERR', JSON.stringify(err));
+						});
 					
 					$state.go(defaulturl);
 					// set header for authorization key
