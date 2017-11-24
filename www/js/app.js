@@ -6,30 +6,33 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'ionic-material','ionic.cloud', 'ionMdInput','ngCordova','angularjs-gauge','chart.js','ion-datetime-picker'])
 
-.run(function($ionicPlatform, $ionicLoading,$rootScope,$cordovaNativeAudio,$timeout) {
+.run(function($ionicPlatform, $ionicLoading,$rootScope,$timeout, $ionicPopup) {
 	
     $ionicPlatform.ready(function() {
-		// ChartJS
-        Chart.defaults.global.defaultFontColor = 'rgba(255, 255, 255, 0.8)';
-		Chart.defaults.global.defaultFontFamily = "'Prompt', sans-serif";
-		Chart.defaults.global.defaultFontSize = 12;
-		Chart.defaults.global.legend.labels.boxWidth = 20;
-		Chart.defaults.global.colors  =  ['#2fb8e1','#306c81','#a3dcdf','#c5dce6','#78ffff','#2ba8cd','#2c6376','#95c8cb','#b4c8d2','#6ee8e8'];
-		
-		navigator.geolocation.getCurrentPosition(function(pos) {
-			console.log("current position "+pos);
-        });
-        
+
+		console.log("ready");
         ionic.Platform.fullScreen();
+		
+		// // ChartJS
+        // Chart.defaults.global.defaultFontColor = 'rgba(255, 255, 255, 0.8)';
+		// Chart.defaults.global.defaultFontFamily = "'Prompt', sans-serif";
+		// Chart.defaults.global.defaultFontSize = 12;
+		// Chart.defaults.global.legend.labels.boxWidth = 20;
+		// Chart.defaults.global.colors  =  ['#2fb8e1','#306c81','#a3dcdf','#c5dce6','#78ffff','#2ba8cd','#2c6376','#95c8cb','#b4c8d2','#6ee8e8'];
+		
+		// navigator.geolocation.getCurrentPosition(function(pos) {
+		// 	console.log("current position "+pos);
+        // });
+        
           
-		$cordovaNativeAudio
-			.preloadSimple('alarmClock', 'audio/alarm.mp3')
-			.then(function (msg) {
-			  console.log(msg);
-			  // $cordovaNativeAudio.play('alarmClock');
-			}, function (error) {
-			//  alert(error);
-		});
+		// $cordovaNativeAudio
+		// 	.preloadSimple('alarmClock', 'audio/alarm.mp3')
+		// 	.then(function (msg) {
+		// 	  console.log(msg);
+		// 	  // $cordovaNativeAudio.play('alarmClock');
+		// 	}, function (error) {
+		// 	//  alert(error);
+		// });
 		
 		var push = PushNotification.init({
 			android: {
@@ -47,6 +50,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ionic-material','ion
 				pushServiceURL: 'http://push.api.phonegap.com/v1/push'
 			}
 		});
+
+		console.log("inti");
+		
 		push.on('registration', function(data) {
 		  console.log("registrationId "+data.registrationId);
 		  $rootScope.tokenId = data.registrationId;
