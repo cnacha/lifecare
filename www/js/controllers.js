@@ -195,7 +195,6 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 				
 					});
 				}
-				
 			}).
 			error(function(data, status, headers, config) 
 			{
@@ -893,6 +892,10 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 	var userObj = JSON.parse(window.localStorage.getItem('user'));
 	$scope.emLat = $rootScope.patient.homeLat;
 	$scope.emLong =  $rootScope.patient.homeLong;
+
+	console.log('lat -->'+$scope.emLat);
+	console.log('long -->'+$scope.emLong);
+
 	var loadEmCenterMap = function () {
 			var myLatlng = new google.maps.LatLng($scope.emLat, $scope.emLong);
 			var map = new google.maps.Map(document.getElementById('patient-map'), {
