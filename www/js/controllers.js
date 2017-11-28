@@ -49,6 +49,8 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
             }
         }
     };
+	
+	$rootScope.showIndex = 0; 
 
     $scope.setExpanded = function(bool) {
         $scope.isExpanded = bool;
@@ -128,14 +130,32 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 	
 	$scope.translateStatus = function(status){
 		console.log("translateStatus called");
+		
 		if(status == 'normal'){
 			return "ปรกติ";
 		} else if(status == 'alert'){
-			return "โทรเรียกฉุกเฉิน";
+			return "ฉุกเฉิน"
 		}else if(status == 'beware'){
-			return "ถึงโรงพยาบาลแล้ว";
+			return "เฝ้าระวัง";
 		} else
 			return status;
+	}
+	
+	$rootScope.statusTH = function(st){
+			if(st == 'calling')
+				return 'โทรเรียกฉุกเฉิน';
+			if(st == 'responded')
+				return 'ตอบรับการโทรเรียก';
+			if(st == 'assigned')
+				return 'รอศูนย์บริการฉุกเฉิน';
+			if(st == 'pickingup')
+				return 'กำลังเดินทางรับผู้ป่วย';
+			if(st == 'atpatient')
+				return 'รถพยาบาลถึงผู้ป่วยแล้ว';
+			if(st == 'delivered')
+				return 'ผู้ป่วยถึงโรงพยาบาล';
+			if(st == 'closed')
+				return 'ปิดคำขอบริการ';
 	}
 	
 	$scope.getTimeStamp = function(){
@@ -151,7 +171,7 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 		if(uObj != 'null'){
 				  console.log('this user alraldy login so go to homepage : authorizationKey = '+JSON.parse(uObj).authorizationKey);
 				  $http.defaults.headers.common['___authorizationkey'] = JSON.parse(window.localStorage.getItem('user')).authorizationKey;
-				//  $state.go(defaulturl);
+				  $state.go(defaulturl);
 				  return;
 		 }
 	 }, 100);
@@ -242,21 +262,14 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 			{
 				$ionicLoading.hide();
 				console.log("success: "+data);
-				if(data == "-3"){
+				if(data.status == "-3"){
 					 var alertPopup = $ionicPopup.alert({
 					 title: 'Registration Fail',
 					 template: 'Username มีผู้ใช้แล้ว <BR/>โปรดใส่ username ใหม่'
 					});
 					alertPopup.then(function(res) {});
 					
-				} else if(data == "-4"){
-					 var alertPopup = $ionicPopup.alert({
-					 title: 'Registration Fail',
-					 template: 'รหัสคนไข้(HN) มีผู้ใช้งานอยู่แล้ว <BR/>โปรดใส่รหัสใหม่ หรือ ปล่อยว่างเพื่อสร้างบัญชีผู้ใช้ชั่วคราว'
-					});
-					alertPopup.then(function(res) {});
-					
-				} else if(data == "-1") {
+				} else if(data.status == "-1") {
 					var alertPopup = $ionicPopup.alert({
 					 title: 'Registration Fail',
 					 template: 'ระบบเกิดความผิดพลาดในระหว่างการลงเบียน โปรดลงทะเบียนใหม่'
@@ -442,14 +455,25 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 	$ionicNavBarDelegate.showBackButton(false);
 	$ionicSideMenuDelegate.canDragContent(true);
 	if($stateParams.showIndex == ''){
-		$stateParams.showIndex = 0;
+		$stateParams.showIndex = $rootScope.showIndex;
+	} else {
+		$rootScope.showIndex = $stateParams.showIndex;
 	}
 	console.log("HomeCtrl "+$stateParams.showIndex)
 	
 	var userObj = JSON.parse(window.localStorage.getItem('user'));
 	// query patient by care giver id
-	
-	$scope.loadPatients = function(){
+	var getLatestRequestStatus = function(patientId){
+			$http.get(URL_PREFIX + "/api/emrequest/patient/latest.do?id=" + patientId)
+					.then(function (res) {
+						console.log("latest req "+res.data.status);
+						return $rootScope.statusTH(res.data.status);
+					}, function (err) {
+						console.error('ERR', JSON.stringify(err));
+					});
+		
+		}
+	$rootScope.loadPatients = function(){
 		$ionicLoading.show();
 		$http.get(URL_PREFIX+"/api/patient/caregiver/list.do?id="+userObj.referenceObject.id)
 			.then(function(res){ 
@@ -463,6 +487,17 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 				if(res.data.length > 0){
 					$scope.patient = res.data[$stateParams.showIndex];
 					$rootScope.patient = $scope.patient;
+					if($rootScope.patient.currentStatus == "alert" || $rootScope.patient.currentStatus == "beware"){
+						$http.get(URL_PREFIX + "/api/emrequest/patient/latest.do?id=" + $scope.patient.id)
+							.then(function (res) {
+								console.log("latest req "+res.data.status);
+								$rootScope.patient.reqStatus = $rootScope.statusTH(res.data.status)
+							}, function (err) {
+								console.error('ERR', JSON.stringify(err));
+							});
+						
+					//	$rootScope.patient.currentStatus += " "+getLatestRequestStatus($rootScope.patient.id);
+					}
 					$scope.patient.photoFileURL = URL_PREFIX + $scope.patient.photoFileURI;
 					console.log($scope.patient.photoFileURL);
 					$scope.loadLocation();
@@ -474,6 +509,8 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 				$ionicLoading.hide();
 			}); 
 	}
+	
+
 	
 	$scope.loadLocation = function(){
 		$ionicLoading.show();
@@ -508,7 +545,7 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 	}
 	
 	// call load patient
-	$scope.loadPatients();
+	$rootScope.loadPatients();
 	
 	var loadMap = function() {
 		console.log("inside google map dom listener");
@@ -538,11 +575,11 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 		});
 		for(var i=0; i< $scope.prevPositions.length; i++){
 			var prevLocation = new google.maps.Marker({
-			position: new google.maps.LatLng($scope.prevPositions[i].lat, $scope.prevPositions[i].lng),
-			map: map,
-			icon: prevImage,
-			title: "ประวัติตำแหน่ง"
-		});
+				position: new google.maps.LatLng($scope.prevPositions[i].lat, $scope.prevPositions[i].lng),
+				map: map,
+				icon: prevImage,
+				title: "ประวัติตำแหน่ง"
+			});
 		}
 		var homeLocation = new google.maps.Marker({
 			position: new google.maps.LatLng($scope.patient.homeLat, $scope.patient.homeLong),
@@ -597,7 +634,7 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 							success(function(data, status, headers, config) 
 							{
 								$ionicLoading.hide();
-								$scope.loadPatients();
+								$rootScope.loadPatients();
 							}).
 							error(function(data, status, headers, config) 
 							{
@@ -642,7 +679,7 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 							success(function(data, status, headers, config) 
 							{
 								$ionicLoading.hide();
-								$scope.loadPatients();
+								$rootScope.loadPatients();
 							}).
 							error(function(data, status, headers, config) 
 							{
@@ -681,7 +718,7 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 					.then(function(res){ 
 						$ionicLoading.hide();
 						$stateParams.showIndex = 0;
-						$scope.loadPatients();
+						$rootScope.loadPatients();
 					}
 					, function(err) {
 						console.error('ERR', JSON.stringify(err));
@@ -710,7 +747,8 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 			},
 		 buttonClicked: function(index) {
 		  if(index == 0)
-				$scope.loadLocation();
+				$rootScope.loadPatients();
+			//	$scope.loadLocation();
 			if(index == 1)
 				$scope.phonecall($scope.patient.watchNumber);
 		   if(index == 2)
@@ -754,7 +792,7 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 		 
 		  $cordovaFileTransfer.upload(url, targetPath, options).then(function(result) {
 			console.log("upload successfully...");
-			$scope.loadPatients();
+			$rootScope.loadPatients();
 		  });
 	}
 	
@@ -941,7 +979,18 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 			success(function(data, status, headers, config) 
 			{
 				$ionicLoading.hide();
-				$state.go("app.home");
+				var alertPopup = $ionicPopup.alert({
+					 title: "การแก้ไขเสร็จสมบูรณ์",
+					 template: "ตำแหน่งบ้านได้ถูกบันทึกแล้ว",
+					  buttons: [
+					  { text: 'OK',  onTap: function(e) {
+							  $state.go("app.home");
+							  return true; 
+							} 
+					   }
+					 ]
+				  });
+				
 			}).
 			error(function(data, status, headers, config) 
 			{
