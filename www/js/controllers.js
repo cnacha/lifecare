@@ -652,48 +652,39 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 	}
 	
 	$scope.setWarnDistance = function(){
-		$ionicLoading.show();
-		navigator.geolocation.getCurrentPosition(function(pos) {
-			$ionicLoading.hide();
-			console.log("current position "+pos.coords.latitude+","+pos.coords.longitude);
-			$scope.patient.homeLat = pos.coords.latitude;
-			$scope.patient.homeLong = pos.coords.longitude;
-             var myPopup = $ionicPopup.show({
-				 template: 'รัศมีเฝ้าระวัง (เเมตร)<input type = "number" ng-model = "patient.warnDistance">',
-				 title: 'ตั้งค่ารัศมีเฝ้าระวัง',
-				 scope: $scope,
-				  buttons: [{ // Array[Object] (optional). Buttons to place in the popup footer.
-					text: 'Cancel',
-					type: 'button-default',
-					onTap: function(e) {
-					 // e.preventDefault();
-					}
-				  }, {
-					text: 'OK',
-					type: 'button-positive',
-					onTap: function(e) {
-						console.log('Save Position!');
-						$ionicLoading.show();
-						var headers = { 'Content-Type':'application/json' };
-						$http.post(URL_PREFIX+"/api/patient/setwarndistance.do",JSON.stringify($scope.patient),headers).
-							success(function(data, status, headers, config) 
-							{
-								$ionicLoading.hide();
-								$rootScope.loadPatients();
-							}).
-							error(function(data, status, headers, config) 
-							{
-								console.log("error: "+data);
-								$ionicLoading.hide();
-							});
-					}
-				  }]
-			  });
+		 var myPopup = $ionicPopup.show({
+			 template: 'รัศมีเฝ้าระวัง (เเมตร)<input type = "number" ng-model = "patient.warnDistance">',
+			 title: 'ตั้งค่ารัศมีเฝ้าระวัง',
+			 scope: $scope,
+			  buttons: [{ // Array[Object] (optional). Buttons to place in the popup footer.
+				text: 'Cancel',
+				type: 'button-default',
+				onTap: function(e) {
+				 // e.preventDefault();
+				}
+			  }, {
+				text: 'OK',
+				type: 'button-positive',
+				onTap: function(e) {
+					console.log('Save Position!');
+					$ionicLoading.show();
+					var headers = { 'Content-Type':'application/json' };
+					$http.post(URL_PREFIX+"/api/patient/setwarndistance.do",JSON.stringify($scope.patient),headers).
+						success(function(data, status, headers, config) 
+						{
+							$ionicLoading.hide();
+							$rootScope.loadPatients();
+						}).
+						error(function(data, status, headers, config) 
+						{
+							console.log("error: "+data);
+							$ionicLoading.hide();
+						});
+				}
+			  }]
+		  });
 			  
-        }, function(error){
-			$ionicLoading.hide();
-			console.log("error from positioning "+error.message);
-		});
+       
 	}
 	
 
@@ -750,7 +741,7 @@ angular.module('starter.controllers', ['ionic','ionic.cloud'])
 				$rootScope.loadPatients();
 			//	$scope.loadLocation();
 			if(index == 1)
-				$scope.phonecall($scope.patient.watchNumber);
+				$scope.phonecall($scope.patient.phone);
 		   if(index == 2)
 				$state.go("app.sethome");
 			if(index == 3)
